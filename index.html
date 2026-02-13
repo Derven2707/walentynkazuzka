@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Walentynki 💘</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(135deg, #ff9acb, #ff5fa2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    .box {
+      text-align: center;
+      padding: 20px;
+      max-width: 90%;
+      position: relative;
+      z-index: 2;
+    }
+
+    h1 {
+      font-size: clamp(24px, 6vw, 36px);
+      color: #b30059;
+      margin-bottom: 20px;
+    }
+
+    .love {
+      font-size: 28px;
+      color: #ff0033;
+      margin-top: 15px;
+      opacity: 0;
+      transition: opacity 2s;
+    }
+
+    .love.show {
+      opacity: 1;
+    }
+
+    .buttons {
+      position: relative;
+      height: 90px;
+    }
+
+    button {
+      font-size: 18px;
+      padding: 12px 28px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    #yes {
+      background: #ff3366;
+      color: white;
+    }
+
+    #no {
+      background: #eee;
+      position: fixed;
+      left: 50%;
+      top: 60%;
+      transform: translate(-50%, -50%);
+    }
+
+    #photo {
+      display: none;
+      margin-top: 20px;
+    }
+
+    #photo img {
+      width: 100%;
+      max-width: 320px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .heart {
+      position: fixed;
+      bottom: -20px;
+      font-size: 24px;
+      animation: float 4s linear forwards;
+    }
+
+    @keyframes float {
+      to {
+        transform: translateY(-110vh) scale(1.5);
+        opacity: 0;
+      }
+    }
+
+    iframe {
+      display: none;
+    }
+
+    canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="fireworks"></canvas>
+
+  <div class="box">
+    <h1 id="question">Zuzanno, czy zostaniesz moją walentynką? 💕</h1>
+
+    <div class="buttons">
+      <button id="yes">TAK 💖</button>
+      <button id="no">NIE</button>
+    </div>
+
+    <div id="photo">
+      <img src="zdjecie.jpg" alt="Nasze zdjęcie">
+    </div>
+
+    <div id="loveText" class="love">Kocham Cię ❤️</div>
+  </div>
+
+  <iframe
+    id="music"
+    allow="autoplay; encrypted-media"
+    playsinline>
+  </iframe>
+
+  <script>
+    const noBtn = document.getElementById("no");
+    const yesBtn = document.getElementById("yes");
+    const question = document.getElementById("question");
+    const photo = document.getElementById("photo");
+    const music = document.getElementById("music");
+    const loveText = document.getElementById("loveText");
+
+    function moveNo() {
+      const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
+      const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
+      noBtn.style.left = x + "px";
+      noBtn.style.top = y + "px";
+    }
+    noBtn.addEventListener("mousedown", moveNo);
+    noBtn.addEventListener("touchstart", moveNo);
+
+    yesBtn.addEventListener("click", () => {
+      question.innerText = "Wiedziałem :* 💘";
+      photo.style.display = "block";
+
+      music.src =
+        "https://www.youtube.com/embed/8KD6sb88rMs?autoplay=1&playsinline=1";
+
+      if (navigator.vibrate) {
+        navigator.vibrate([200, 100, 200, 100, 400]);
+      }
+
+      setInterval(createHeart, 300);
+      startFireworks();
+
+      // ❤️ NAPIS PO CHWILI
+      setTimeout(() => {
+        loveText.classList.add("show");
+      }, 2000);
+    });
+
+    function createHeart() {
+      const h = document.createElement("div");
+      h.className = "heart";
+      h.innerText = "💗";
+      h.style.left = Math.random() * 100 + "vw";
+      h.style.fontSize = Math.random() * 20 + 20 + "px";
+      document.body.appendChild(h);
+      setTimeout(() => h.remove(), 4000);
+    }
+
+    const canvas = document.getElementById("fireworks");
+    const ctx = canvas.getContext("2d");
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+
+    let particles = [];
+
+    function startFireworks() {
+      setInterval(() => {
+        for (let i = 0; i < 30; i++) {
+          particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            vx: (Math.random() - 0.5) * 6,
+            vy: (Math.random() - 0.5) * 6,
+            life: 60
+          });
+        }
+      }, 400);
+      requestAnimationFrame(updateFireworks);
+    }
+
+    function updateFireworks() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        ctx.fillStyle = "rgba(255,255,255,0.8)";
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life--;
+      });
+      particles = particles.filter(p => p.life > 0);
+      requestAnimationFrame(updateFireworks);
+    }
+  </script>
+
+</body>
+</html>
